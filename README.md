@@ -145,7 +145,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 For queries or support:
 - **Team Name**: CodeDrop
-- **Author**: Bharat Mittal, Abitesh, Lalatendu Biswal, Ayushi 
+- **Author**: Bharat Mittal, Abhitesh, Lalatendu Biswal, Ayushi 
 - **Email**: [bmittal189@gmail.com] [avi.vish02244@gmail.com] [lalatendu118@gmail.com] [ayu.rana001@gmail.com]
 
 
