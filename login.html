@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Login - QuickDesk{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign In
+                    </h3>
+                    <p class="text-muted">Welcome back to QuickDesk</p>
+                </div>
+                
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.username.label(class="form-label") }}
+                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), placeholder="Enter your username or email") }}
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Enter your password") }}
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.role.label(class="form-label") }}
+                        {{ form.role(class="form-select" + (" is-invalid" if form.role.errors else "")) }}
+                        {% if form.role.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.role.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Select the role you want to log in as. Your account must have the selected role permissions.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        {{ form.remember_me(class="form-check-input") }}
+                        {{ form.remember_me.label(class="form-check-label") }}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right"></i> Sign In
+                        </button>
+                    </div>
+                </form>
+                
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <p class="mb-0">Don't have an account?</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-person-plus"></i> Create Account
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Demo Credentials -->
+        <div class="card mt-3 border-info">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-info-circle"></i> Demo Credentials
+                </h6>
+                <small class="text-muted">
+                    <strong>Admin:</strong> admin@quickdesk.com / admin123<br>
+                    <strong>Agent:</strong> agent@quickdesk.com / agent123<br>
+                    <strong>Note:</strong> Select the appropriate role when logging in
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
