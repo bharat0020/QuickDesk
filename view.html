@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Ticket #{{ ticket.id }} - QuickDesk{% endblock %}
+
+{% block content %}
+<!-- Ticket Header -->
+<div class="row mb-4">
+    <div class="col">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h2 class="fw-bold mb-2">
+                    <i class="bi bi-ticket-perforated"></i> 
+                    Ticket #{{ ticket.id }}
+                </h2>
+                <h4 class="text-muted">{{ ticket.subject }}</h4>
+            </div>
+            <div class="text-end">
+                <span class="badge {{ ticket.status_badge_class }} fs-6 me-2">
+                    {{ ticket.status.replace('_', ' ').title() }}
+                </span>
+                <span class="badge {{ ticket.priority_badge_class }} fs-6">
+                    {{ ticket.priority.title() }} Priority
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Ticket Details -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ ticket.creator.full_name }}</strong>
+                    <small class="text-muted">created on {{ format_datetime(ticket.created_at) }}</small>
+                </div>
+                <!-- Voting System -->
+                <div class="d-flex align-items-center gap-2">
+                    <form method="POST" action="{{ url_for('vote_ticket', id=ticket.id) }}" class="d-inline">
+                        {{ vote_form.hidden_tag() }}
+                        <input type="hidden" name="vote_type" value="up">
+                        <button type="submit" class="btn btn-sm {{ 'btn-success' if user_vote and user_vote.vote_type == 'up' else 'btn-outline-success' }}">
+                            <i class="bi bi-arrow-up"></i> {{ ticket.upvotes }}
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('vote_ticket', id=ticket.id) }}" class="d-inline">
+                        {{ vote_form.hidden_tag() }}
+                        <input type="hidden" name="vote_type" value="down">
+                        <button type="submit" class="btn btn-sm {{ 'btn-danger' if user_vote and user_vote.vote_type == 'down' else 'btn-outline-danger' }}">
+                            <i class="bi bi-arrow-down"></i> {{ ticket.downvotes }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Description:</strong>
+                </div>
+                <div class="border-start border-3 border-primary ps-3 mb-3">
+                    {{ ticket.description|replace('\n', '<br>')|safe }}
+                </div>
+                
+                <!-- Attachments -->
+                {% if ticket.attachments %}
+                <div class="mb-3">
+                    <strong>Attachments:</strong>
+                    <div class="mt-2">
+                        {% for attachment in ticket.attachments %}
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-paperclip me-2"></i>
+                            <a href="{{ url_for('download_file', attachment_id=attachment.id) }}" class="text-decoration-none">
+                                {{ attachment.original_filename }}
+                            </a>
+                            <small class="text-muted ms-2">
+                                ({{ "%.1f"|format(attachment.file_size / 1024) }} KB)
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-chat-dots"></i> 
+                    Comments ({{ comments|length }})
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if comments %}
+                    {% for comment in comments %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <strong>{{ comment.author.full_name }}</strong>
+                                {% if comment.is_internal %}
+                                    <span class="badge bg-warning text-dark ms-2">Internal</span>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">{{ format_datetime(comment.created_at) }}</small>
+                        </div>
+                        <div class="text-muted">
+                            {{ comment.content|replace('\n', '<br>')|safe }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="text-center py-3 text-muted">
+                    <i class="bi bi-chat display-4"></i>
+                    <p class="mt-2">No comments yet. Be the first to add a comment!</p>
+                </div>
+                {% endif %}
+
+                <!-- Add Comment Form -->
+                {% if current_user.can_edit_ticket(ticket) or current_user.role in ['agent', 'admin'] %}
+                <hr>
+                <form method="POST" action="{{ url_for('add_comment', id=ticket.id) }}">
+                    {{ comment_form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ comment_form.content.label(class="form-label") }}
+                        {{ comment_form.content(class="form-control", placeholder="Add your comment or update...") }}
+                    </div>
+                    
+                    {% if current_user.role in ['agent', 'admin'] %}
+                    <div class="mb-3 form-check">
+                        {{ comment_form.is_internal(class="form-check-input") }}
+                        {{ comment_form.is_internal.label(class="form-check-label") }}
+                        <div class="form-text">Internal comments are only visible to agents and administrators.</div>
+                    </div>
+                    {% endif %}
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send"></i> Add Comment
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Ticket Info -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-info-circle"></i> Ticket Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-5"><strong>Status:</strong></div>
+                    <div class="col-sm-7">
+                        <span class="badge {{ ticket.status_badge_class }}">
+                            {{ ticket.status.replace('_', ' ').title() }}
+                        </span>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-5"><strong>Priority:</strong></div>
+                    <div class="col-sm-7">
+                        <span class="badge {{ ticket.priority_badge_class }}">
+                            {{ ticket.priority.title() }}
+                        </span>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-5"><strong>Category:</strong></div>
+                    <div class="col-sm-7">{{ ticket.category.name }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-5"><strong>Created By:</strong></div>
+                    <div class="col-sm-7">{{ ticket.creator.full_name }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-5"><strong>Assigned To:</strong></div>
+                    <div class="col-sm-7">
+                        {{ ticket.assignee.full_name if ticket.assignee else 'Unassigned' }}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-5"><strong>Created:</strong></div>
+                    <div class="col-sm-7">{{ format_datetime(ticket.created_at) }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-5"><strong>Updated:</strong></div>
+                    <div class="col-sm-7">{{ format_datetime(ticket.updated_at) }}</div>
+                </div>
+                {% if ticket.resolved_at %}
+                <div class="row mb-2">
+                    <div class="col-sm-5"><strong>Resolved:</strong></div>
+                    <div class="col-sm-7">{{ format_datetime(ticket.resolved_at) }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        {% if current_user.can_edit_ticket(ticket) %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-gear"></i> Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_ticket', id=ticket.id) }}">
+                    {{ update_form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ update_form.status.label(class="form-label") }}
+                        {{ update_form.status(class="form-select") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ update_form.priority.label(class="form-label") }}
+                        {{ update_form.priority(class="form-select") }}
+                    </div>
+                    
+                    {% if current_user.can_assign_tickets() %}
+                    <div class="mb-3">
+                        {{ update_form.assigned_to.label(class="form-label") }}
+                        {{ update_form.assigned_to(class="form-select") }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Update Ticket
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Navigation -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-arrow-left-right"></i> Navigation
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('tickets_list') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-list"></i> Back to Tickets
+                    </a>
+                    <a href="{{ url_for('create_ticket') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle"></i> Create New Ticket
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-info">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
