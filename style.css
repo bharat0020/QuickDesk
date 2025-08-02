@@ -1,0 +1,381 @@
+/* QuickDesk Custom Styles */
+
+/* Base styles that complement Bootstrap dark theme */
+:root {
+    --quickdesk-primary: #0d6efd;
+    --quickdesk-secondary: #6c757d;
+    --quickdesk-success: #198754;
+    --quickdesk-warning: #ffc107;
+    --quickdesk-danger: #dc3545;
+    --quickdesk-info: #0dcaf0;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bs-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bs-secondary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bs-light);
+}
+
+/* Card enhancements */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+}
+
+/* Ticket status indicators */
+.ticket-status-open {
+    border-left: 4px solid var(--quickdesk-primary);
+}
+
+.ticket-status-in-progress {
+    border-left: 4px solid var(--quickdesk-warning);
+}
+
+.ticket-status-resolved {
+    border-left: 4px solid var(--quickdesk-success);
+}
+
+.ticket-status-closed {
+    border-left: 4px solid var(--quickdesk-secondary);
+}
+
+/* Priority indicators */
+.priority-low {
+    color: var(--quickdesk-secondary) !important;
+}
+
+.priority-medium {
+    color: var(--quickdesk-info) !important;
+}
+
+.priority-high {
+    color: var(--quickdesk-warning) !important;
+}
+
+.priority-urgent {
+    color: var(--quickdesk-danger) !important;
+}
+
+/* Vote buttons styling */
+.vote-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.vote-button {
+    border: none;
+    background: transparent;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    transition: all 0.15s ease-in-out;
+    min-width: 2rem;
+}
+
+.vote-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.vote-button.active-up {
+    background: var(--quickdesk-success);
+    color: white;
+}
+
+.vote-button.active-down {
+    background: var(--quickdesk-danger);
+    color: white;
+}
+
+/* Comment thread styling */
+.comment-thread {
+    border-left: 2px solid var(--bs-border-color);
+    padding-left: 1rem;
+    margin-left: 1rem;
+}
+
+.comment-item {
+    position: relative;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: var(--bs-dark);
+    border-radius: 0.5rem;
+    border: 1px solid var(--bs-border-color);
+}
+
+.comment-item::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 1rem;
+    width: 10px;
+    height: 10px;
+    background: var(--bs-secondary);
+    border-radius: 50%;
+    border: 2px solid var(--bs-dark);
+}
+
+.comment-internal {
+    background: rgba(255, 193, 7, 0.1);
+    border-color: var(--quickdesk-warning);
+}
+
+/* Attachment styling */
+.attachment-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.attachment-item:hover {
+    background: var(--bs-secondary);
+}
+
+.attachment-icon {
+    font-size: 1.5rem;
+    margin-right: 0.75rem;
+    color: var(--quickdesk-info);
+}
+
+/* Table enhancements */
+.table-hover tbody tr:hover td {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Badge enhancements */
+.badge {
+    font-size: 0.75em;
+    padding: 0.375rem 0.5rem;
+}
+
+.badge-pill {
+    border-radius: 50rem;
+}
+
+/* Form enhancements */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--quickdesk-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--quickdesk-primary);
+    border-color: var(--quickdesk-primary);
+}
+
+/* Button enhancements */
+.btn {
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+/* Search and filter styling */
+.search-filters {
+    background: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Statistics cards */
+.stat-card {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 100%);
+    border: none;
+    color: white;
+    overflow: hidden;
+    position: relative;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(30px, -30px);
+}
+
+/* Avatar styling */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, var(--quickdesk-primary), var(--quickdesk-info));
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .comment-thread {
+        margin-left: 0;
+        padding-left: 0.5rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .navbar,
+    .btn,
+    .card-header,
+    .pagination,
+    .modal {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+}
+
+/* Animation utilities */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Custom checkbox and radio styling */
+.form-check-input:checked[type=checkbox] {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+
+/* Tooltip enhancements */
+.tooltip {
+    font-size: 0.75rem;
+}
+
+.tooltip-inner {
+    background-color: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+}
+
+/* Focus indicators for accessibility */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+    outline: 2px solid var(--quickdesk-primary);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .card {
+        border: 2px solid var(--bs-border-color);
+    }
+    
+    .btn {
+        border-width: 2px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
