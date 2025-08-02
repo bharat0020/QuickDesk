@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - QuickDesk{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="fw-bold">
+            <i class="bi bi-people"></i> Manage Users
+        </h1>
+        <p class="text-muted">View and manage user accounts and roles</p>
+    </div>
+</div>
+
+<!-- Users List -->
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">
+                    <i class="bi bi-list"></i> All Users ({{ users|length }})
+                </h5>
+            </div>
+            <div class="col-auto">
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="userFilter" id="filterAll" checked>
+                    <label class="btn btn-outline-secondary btn-sm" for="filterAll">All</label>
+                    
+                    <input type="radio" class="btn-check" name="userFilter" id="filterActive">
+                    <label class="btn btn-outline-success btn-sm" for="filterActive">Active</label>
+                    
+                    <input type="radio" class="btn-check" name="userFilter" id="filterInactive">
+                    <label class="btn btn-outline-danger btn-sm" for="filterInactive">Inactive</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0" id="usersTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Tickets Created</th>
+                    <th>Tickets Assigned</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="user-row" data-status="{{ 'active' if user.is_active else 'inactive' }}">
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <span class="text-white fw-bold">
+                                        {{ user.first_name[0] }}{{ user.last_name[0] }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="fw-bold">{{ user.full_name }}</div>
+                                <small class="text-muted">@{{ user.username }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <a href="mailto:{{ user.email }}" class="text-decoration-none">
+                            {{ user.email }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if user.role == 'admin' %}
+                            <span class="badge bg-danger">Administrator</span>
+                        {% elif user.role == 'agent' %}
+                            <span class="badge bg-warning text-dark">Support Agent</span>
+                        {% else %}
+                            <span class="badge bg-info">End User</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.is_active %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Active
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-x-circle"></i> Inactive
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">{{ user.tickets.count() }}</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-success">{{ user.assigned_tickets.count() }}</span>
+                    </td>
+                    <td>
+                        <small class="text-muted">
+                            {{ format_datetime(user.created_at) }}
+                        </small>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-outline-primary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editUserModal{{ user.id }}"
+                                    title="Edit User">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#viewUserModal{{ user.id }}"
+                                    title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Role Statistics -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="fw-bold mb-0">
+                            {{ users|selectattr('role', 'equalto', 'user')|list|length }}
+                        </h4>
+                        <p class="mb-0">End Users</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-person display-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="fw-bold mb-0">
+                            {{ users|selectattr('role', 'equalto', 'agent')|list|length }}
+                        </h4>
+                        <p class="mb-0">Support Agents</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-headset display-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="fw-bold mb-0">
+                            {{ users|selectattr('role', 'equalto', 'admin')|list|length }}
+                        </h4>
+                        <p class="mb-0">Administrators</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-shield display-6"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modals -->
+{% for user in users %}
+<div class="modal fade" id="editUserModal{{ user.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil"></i> Edit User: {{ user.full_name }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('edit_user', id=user.id) }}">
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">First Name</label>
+                                <input type="text" name="first_name" class="form-control" 
+                                       value="{{ user.first_name }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" name="last_name" class="form-control" 
+                                       value="{{ user.last_name }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" 
+                               value="{{ user.username }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" 
+                               value="{{ user.email }}" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Role</label>
+                                <select name="role" class="form-select">
+                                    <option value="user" {{ 'selected' if user.role == 'user' }}>End User</option>
+                                    <option value="agent" {{ 'selected' if user.role == 'agent' }}>Support Agent</option>
+                                    <option value="admin" {{ 'selected' if user.role == 'admin' }}>Administrator</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input type="checkbox" name="is_active" class="form-check-input" 
+                                           {{ 'checked' if user.is_active }}>
+                                    <label class="form-check-label">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if user.role == 'admin' and user.id == current_user.id %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Note:</strong> You are editing your own administrator account. 
+                        Be careful not to remove your own admin privileges.
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View User Details Modal -->
+<div class="modal fade" id="viewUserModal{{ user.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-person-circle"></i> User Details: {{ user.full_name }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">Basic Information</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Full Name:</strong></td>
+                                <td>{{ user.full_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Username:</strong></td>
+                                <td>@{{ user.username }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email:</strong></td>
+                                <td>{{ user.email }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Role:</strong></td>
+                                <td>
+                                    {% if user.role == 'admin' %}
+                                        <span class="badge bg-danger">Administrator</span>
+                                    {% elif user.role == 'agent' %}
+                                        <span class="badge bg-warning text-dark">Support Agent</span>
+                                    {% else %}
+                                        <span class="badge bg-info">End User</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Status:</strong></td>
+                                <td>
+                                    {% if user.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">Activity Statistics</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Tickets Created:</strong></td>
+                                <td><span class="badge bg-primary">{{ user.tickets.count() }}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tickets Assigned:</strong></td>
+                                <td><span class="badge bg-success">{{ user.assigned_tickets.count() }}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Comments Posted:</strong></td>
+                                <td><span class="badge bg-info">{{ user.comments.count() }}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Votes Cast:</strong></td>
+                                <td><span class="badge bg-warning text-dark">{{ user.votes.count() }}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Joined:</strong></td>
+                                <td>{{ format_datetime(user.created_at) }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Last Updated:</strong></td>
+                                <td>{{ format_datetime(user.updated_at) }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <hr>
+                <h6 class="fw-bold">Recent Tickets</h6>
+                {% set recent_tickets = user.tickets.order_by('created_at desc').limit(5) %}
+                {% if recent_tickets.count() > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ticket in recent_tickets %}
+                            <tr>
+                                <td><a href="{{ url_for('view_ticket', id=ticket.id) }}">#{{ ticket.id }}</a></td>
+                                <td>{{ ticket.subject[:40] }}{% if ticket.subject|length > 40 %}...{% endif %}</td>
+                                <td><span class="badge {{ ticket.status_badge_class }}">{{ ticket.status.replace('_', ' ').title() }}</span></td>
+                                <td><small>{{ format_datetime(ticket.created_at) }}</small></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No tickets created yet.</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" 
+                        data-bs-toggle="modal" data-bs-target="#editUserModal{{ user.id }}">
+                    <i class="bi bi-pencil"></i> Edit User
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // User filtering functionality
+    const filterButtons = document.querySelectorAll('input[name="userFilter"]');
+    const userRows = document.querySelectorAll('.user-row');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('change', function() {
+            const filter = this.id.replace('filter', '').toLowerCase();
+            
+            userRows.forEach(row => {
+                if (filter === 'all') {
+                    row.style.display = '';
+                } else {
+                    const status = row.getAttribute('data-status');
+                    row.style.display = status === filter ? '' : 'none';
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
