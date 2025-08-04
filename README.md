@@ -38,10 +38,10 @@ QuickDesk provides a user-friendly interface for different user roles:
 ## 🧰 Tech Stack
 
 - **Frontend**: HTML, CSS, JavaScript
-- **Backend**: Node.js (Express)
-- **Database**: MongoDB (optional, depending on your implementation)
-- **Authentication**: (Optional) JWT / Sessions
-- **Deployment**: GitHub Pages / Heroku / Render / Vercel
+- **Backend**: Flask
+- **Database**: SQLite, MongoDB (optional, depending on your implementation)
+- **Authentication**: JWT / Sessions (Flask-auth)
+- **Deployment**: GitHub Pages
 
 ---
 
@@ -137,7 +137,7 @@ Contributions are welcome!
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE) and free to use.
 
 ---
 
@@ -151,3 +151,8 @@ For queries or support:
 
 ---
 
+## **Project Demo Videos**
+
+Link - https://youtu.be/1iYr1xT3q_8?si=jAUwA9jkaDmEYDqN
+
+---
